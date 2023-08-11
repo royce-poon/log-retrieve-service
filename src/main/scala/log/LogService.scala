@@ -13,19 +13,19 @@ class LogService()(implicit ec: ExecutionContext) {
   private val bufferSize = 4096
 
   /**
-    * This function is used to move the current file pointer position to the next new line character "\n"
+    * Get paginated log lines from a file
     *
     * @param file The log file to operate on
     * @param keywordOpt If defined, the keyword to filter results
-    * @param lastNumEntriesOpt If defined, the last n number of matching entries to take
-    * @param pageOpt If defined, the page number or results to take
+    * @param lastNumEntriesOpt If defined, the last n number of matching results to take
+    * @param pageOpt If defined, the page number of results to take
     *
-    * @return A tuple containing 1)a position that points to the next new line character and 2)the number of positions that was adjusted
+    * @return A paginated list of log lines from the file
     */
-  def getLogLines(file: File, keywordOpt: Option[String] = None, lastNumEntriesOpt: Option[Int] = None, pageOpt: Option[Int] = None): Seq[String] = {
+  def getPaginatedLogLines(file: File, keywordOpt: Option[String] = None, lastNumEntriesOpt: Option[Int] = None, pageOpt: Option[Int] = None): Seq[String] = {
 
-    // Used to indicate whether or not there are still some lines to be read if currentPos becomes negative.
-    var hasRemaining = true
+    // Used to indicate whether or not there are still some lines to be read if currentPos is negative.
+    var hasRemainingLines = true
     var counter = 0
     val takeN = lastNumEntriesOpt.getOrElse(-1)
 
@@ -34,14 +34,14 @@ class LogService()(implicit ec: ExecutionContext) {
     try {
       val lineBuffer = scala.collection.mutable.Buffer.empty[String]
 
+      // Starting position to read bytes
       var currentPos = file.length() - bufferSize
-      currentPos = adjustFilePointerPos(randomAccessFile, currentPos)._1
       var bytesRead = 0
 
-      while (currentPos >= 0 || hasRemaining) {
-        if (hasRemaining && currentPos < 0) {
+      while (currentPos >= 0 || hasRemainingLines) {
+        if (hasRemainingLines && currentPos < 0) {
           //Set this to false so that the while loop doesn't execute again should currentPos becomes negative for the second time
-          hasRemaining = false
+          hasRemainingLines = false
         }
 
         val (adjustedCurrentPos, adjustedPosCount) = adjustFilePointerPos(randomAccessFile, currentPos)
@@ -76,7 +76,7 @@ class LogService()(implicit ec: ExecutionContext) {
   }
 
   /**
-    * This function is used to move the current file pointer position to the position of the next new line character "\n"
+    * Adjust the current file pointer position to the position of the next new line character "\n"
     *
     * @return A tuple containing 1)a position that points to the next new line character and 2)the number of positions that was adjusted
     */

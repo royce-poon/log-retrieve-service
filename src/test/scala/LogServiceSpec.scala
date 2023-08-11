@@ -18,7 +18,7 @@ class LogServiceSpec extends AnyFunSpec with MockitoSugar {
     it("should return results successfully without any filters") {
       val filePath = getClass.getClassLoader.getResource("tinyfile.log").getFile
       val file = new File(filePath)
-      val lines = logService.getLogLines(file)
+      val lines = logService.getPaginatedLogLines(file)
 
       lines shouldBe Seq(
         "2023-08-09 10:07:00 - INFO - Request received",
@@ -36,7 +36,7 @@ class LogServiceSpec extends AnyFunSpec with MockitoSugar {
       val filePath = getClass.getClassLoader.getResource("tinyfile.log").getFile
       val file = new File(filePath)
       val keyword = Some("error")
-      val lines = logService.getLogLines(file, keywordOpt = keyword)
+      val lines = logService.getPaginatedLogLines(file, keywordOpt = keyword)
 
       lines shouldBe Seq(
         "2023-08-09 10:04:00 - ERROR - Application crashed",
@@ -48,7 +48,7 @@ class LogServiceSpec extends AnyFunSpec with MockitoSugar {
       val filePath = getClass.getClassLoader.getResource("tinyfile.log").getFile
       val file = new File(filePath)
       val lastNumEntries = Some(2)
-      val lines = logService.getLogLines(file, lastNumEntriesOpt = lastNumEntries)
+      val lines = logService.getPaginatedLogLines(file, lastNumEntriesOpt = lastNumEntries)
 
       lines shouldBe Seq(
         "2023-08-09 10:07:00 - INFO - Request received",
@@ -59,7 +59,7 @@ class LogServiceSpec extends AnyFunSpec with MockitoSugar {
     it("should return expected paginated lines without using page param") {
       val filePath = getClass.getClassLoader.getResource("bigfile.log").getFile
       val file = new File(filePath)
-      val lines = logService.getLogLines(file)
+      val lines = logService.getPaginatedLogLines(file)
 
       lines.size shouldBe 100
       lines.head shouldBe "2023-08-09 12:59:00 - INFO - Account created"
@@ -70,7 +70,7 @@ class LogServiceSpec extends AnyFunSpec with MockitoSugar {
       val filePath = getClass.getClassLoader.getResource("bigfile.log").getFile
       val file = new File(filePath)
       val page = Some(2)
-      val lines = logService.getLogLines(file, pageOpt = page)
+      val lines = logService.getPaginatedLogLines(file, pageOpt = page)
 
       lines.size shouldBe 100
       lines.head shouldBe "2023-08-09 11:19:00 - INFO - System upgrade initiated"
@@ -82,7 +82,7 @@ class LogServiceSpec extends AnyFunSpec with MockitoSugar {
       val file = new File(filePath)
       val keyword = Some("info")
       val page = Some(2)
-      val lines = logService.getLogLines(file, keywordOpt = keyword, pageOpt = page)
+      val lines = logService.getPaginatedLogLines(file, keywordOpt = keyword, pageOpt = page)
 
       lines.size shouldBe 80
       lines.head shouldBe "2023-08-09 12:39:00 - INFO - User preferences updated"

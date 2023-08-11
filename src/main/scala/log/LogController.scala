@@ -20,7 +20,7 @@ class LogController @Inject()(cc: ControllerComponents, logService: LogService) 
     file match {
       case Success(file) =>
         val paginatedLines = Try {
-          logService.getLogLines(file, keyword, lastNumEntries, page)
+          logService.getPaginatedLogLines(file, keyword, lastNumEntries, page)
         } match {
           case Success(lines) => lines
           case Failure(exception) =>
