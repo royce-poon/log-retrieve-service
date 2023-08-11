@@ -18,8 +18,7 @@ class AppComponents(context: Context)
     extends BuiltInComponentsFromContext(context)
         with HttpFiltersComponents {
 
-  val logService = new LogService()
-  lazy val logController = new LogController(controllerComponents, logService)
+  lazy val logController = new LogController(controllerComponents, new LogService())
 
   override def router: Routes = new Routes(httpErrorHandler, logController)
 }
