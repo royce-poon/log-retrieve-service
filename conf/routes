@@ -1,0 +1,1 @@
+GET     /logs/:filename     log.LogController.getLogs(filename: String, keyword: Option[String], lastN: Option[Int], page: Option[Int])
